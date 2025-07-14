@@ -23,10 +23,27 @@ resource "google_compute_firewall" "allow-ssh" {
   target_tags   = ["attack-range-vm"]
 }
 
+resource "google_compute_firewall" "allow-splunk-ui" {
+  name    = "allow-splunk-ui"
+  network = google_compute_network.attack_range_vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8000"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["attack-range-vm"]
+
+  description = "Allow access to Splunk Web UI on port 8000"
+}
+
 resource "google_compute_instance" "attack_range_vm" {
   name         = "attack-range-vm"
   machine_type = "e2-standard-2"
   zone         = var.zone
+
+  can_ip_forward = true  
 
   tags = ["attack-range-vm"]
 
@@ -50,3 +67,4 @@ resource "google_compute_instance" "attack_range_vm" {
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
   }
 }
+
